@@ -1,0 +1,7 @@
+sim/obj_dir/
+sim/obj_dir_uvm/
+sim/obj_dir_uvm_test/
+sim/*.fst
+sim/*.vcd
+sim/*.log
+rtl_patched/
