@@ -8,7 +8,15 @@ module tb_top;
   logic clk = 0;
   logic rst_n = 0;
   initial forever #5 clk = ~clk;
-  initial begin #100; rst_n = 1; end
+  initial begin
+    tx_if.awvalid = 0; tx_if.wvalid = 0; tx_if.arvalid = 0;
+    // Pulse rst to generate posedge arst for async reset
+    rst_n = 1; #2; rst_n = 0;
+    rx_if.awvalid = 0; rx_if.wvalid = 0; rx_if.arvalid = 0;
+    tx_if.bready = 1; rx_if.bready = 1;
+    tx_if.rready = 0; rx_if.rready = 0;
+    #10000; rst_n = 1;
+  end
 
   axi_like_if tx_if(.clk(clk), .rst_n(rst_n));
   axi_like_if rx_if(.clk(clk), .rst_n(rst_n));
@@ -31,8 +39,14 @@ module tb_top;
   logic [1:0]  tx_bresp_w, tx_buser_w, tx_rresp_w, tx_ruser_w;
   logic [31:0] tx_rdata_w;
 
+  logic        rx_awready_w, rx_wready_w, rx_bvalid_w, rx_arready_w;
+  logic        rx_bid_w, rx_rvalid_w, rx_rlast_w, rx_rid_w;
+  logic [1:0]  rx_bresp_w, rx_buser_w, rx_rresp_w, rx_ruser_w;
+  logic [31:0] rx_rdata_w;
   logic rx_ar_gate = 0;
   logic rx_rready_ctrl;
+  logic rx_arvalid_ctrl = 0;
+  logic rx_rready_ctrl2 = 0;
   logic [15:0] rx_gate_cnt = 0;
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -41,6 +55,8 @@ module tb_top;
       rx_rready_ctrl <= 0;
     end else begin
       rx_rready_ctrl <= rx_if.rready;
+      rx_arvalid_ctrl <= rx_if.arvalid;
+      rx_rready_ctrl2 <= rx_if.rready;
       if (rx_gate_cnt < 16'hFFFF) rx_gate_cnt <= rx_gate_cnt + 1;
       if (rx_gate_cnt > 16'h0100) rx_ar_gate <= 1;
     end
@@ -123,7 +139,7 @@ module tb_top;
     .noc_out_arcache(rx_if.arcache),.noc_out_arprot(rx_if.arprot),
     .noc_out_arqos(rx_if.arqos),    .noc_out_arregion(rx_if.arregion),
     .noc_out_aruser(rx_if.aruser),  .noc_out_arvalid(rx_if.arvalid && rx_ar_gate),
-    .noc_out_arready(rx_arready_w), .noc_out_rready(rx_rready_ctrl),
+    .noc_out_arready(rx_arready_w), .noc_out_rready(rx_rready_ctrl2),
     .noc_out_rid(rx_rid_w),         .noc_out_rdata(rx_rdata_w),
     .noc_out_rresp(rx_rresp_w),     .noc_out_rlast(rx_rlast_w),
     .noc_out_ruser(rx_ruser_w),     .noc_out_rvalid(rx_rvalid_w)

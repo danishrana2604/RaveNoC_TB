@@ -35,8 +35,10 @@ class axi_like_seq_item extends uvm_sequence_item;
 
   function new(string name = "axi_like_seq_item");
     super.new(name);
+    size  = 3'b010;
+    burst = 2'b01;
+    strb  = 4'hF;
   endfunction
-
   function string convert2string();
     return $sformatf("%s addr=0x%08h len=%0d data[0]=0x%08h bresp=%0b",
       dir.name(), addr, len, (data.size() > 0 ? data[0] : 32'hx), bresp);
