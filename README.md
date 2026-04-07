@@ -41,16 +41,16 @@ Example: 0xC0400001
 
 ## File Structure
 tb/
-axi_like_if.sv          � AXI-like virtual interface
-axi_like_seq_item.sv    � UVM transaction (write/read)
-axi_like_master_bfm.sv  � shared driver (TX + RX agents)
-axi_like_agent.sv       � UVM agent (sequencer + driver)
-axi_like_env.sv         � UVM environment
-axi_like_test.sv        � UVM test (VC0 loopback)
-axi_scoreboard.sv       � PASS/FAIL checker
-tb_pkg.sv               � package including all classes
-tb_top.sv               � C++ bringup top (flat ports)
-tb_top_uvm.sv           � UVM top (always_ff workaround)
+axi_like_if.sv           AXI-like virtual interface
+axi_like_seq_item.sv     UVM transaction (write/read)
+axi_like_master_bfm.sv   shared driver (TX + RX agents)
+axi_like_agent.sv        UVM agent (sequencer + driver)
+axi_like_env.sv          UVM environment
+axi_like_test.sv         UVM test (VC0 loopback)
+axi_scoreboard.sv        PASS/FAIL checker
+tb_pkg.sv                package including all classes
+tb_top.sv                C++ bringup top (flat ports)
+tb_top_uvm.sv            UVM top (always_ff workaround)
 sim/
-run_verilator.sh        � C++ bringup script
-run_verilator_uvm.sh    � UVM script (Antmicro fork)
+run_verilator.sh         C++ bringup script
+run_verilator_uvm.sh     UVM script (Antmicro fork)
