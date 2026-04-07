@@ -7,11 +7,9 @@
 # Phase 0: C++ bringup (PASS)
 cd sim && ./run_verilator.sh axi_like_test
 
-# Phase 1: UVM run (write PASS, read in progress)
+# Phase 1: UVM run (write PASS, read PASS)
 cd sim && ./run_verilator_uvm.sh axi_like_test
 
-# Demo: UVM incompatibility with standard Accellera UVM
-cd sim && ./run_uvm_demo.sh
 ```
 
 ## DUT
@@ -30,16 +28,16 @@ Example: 0xC0400001
 ## Project Status
 | Phase | Task | Status |
 |-------|------|--------|
-| Phase 0 | C++ bringup � write + read loopback | ? PASS |
-| Phase 1 | UVM write path (AW+W+B) | ? PASS |
-| Phase 1 | UVM read path (AR+R scoreboard) | ?? In progress |
-| Phase 2 | Full 38 test cases from test plan | ? Pending |
+| Phase 0 | C++ bringup  write + read loopback |  PASS |
+| Phase 1 | UVM write path (AW+W+B) |  PASS |
+| Phase 1 | UVM read path (AR+R scoreboard) | PASS |
+| Phase 2 | Some test cases  |  Pending |
 
 ## Key Technical Findings
-1. **wvalid must be held 1 extra cycle** after wready � `normal_txn_resp` needs a full posedge
-2. **AW+W must be driven simultaneously** � wready is combinatorially gated on the AW FIFO
-3. **Verilator ico bug #5116** � virtual interface members create infinite combinational triggers with UVM; workaround: `always_ff` registered intermediates in `tb_top_uvm.sv`
-4. **RaveNoC NI pre-asserts rvalid** without waiting for arvalid � rready must be gated until test is ready to read
+1. **wvalid must be held 1 extra cycle** after wready  `normal_txn_resp` needs a full posedge
+2. **AW+W must be driven simultaneously**  wready is combinatorially gated on the AW FIFO
+3. **Verilator ico bug #5116**  virtual interface members create infinite combinational triggers with UVM; workaround: `always_ff` registered intermediates in `tb_top_uvm.sv`
+4. **RaveNoC NI pre-asserts rvalid** without waiting for arvalid  rready must be gated until test is ready to read
 
 ## File Structure
 tb/
@@ -56,4 +54,3 @@ tb_top_uvm.sv           � UVM top (always_ff workaround)
 sim/
 run_verilator.sh        � C++ bringup script
 run_verilator_uvm.sh    � UVM script (Antmicro fork)
-sim_main.cpp            � C++ clock/AXI driver
