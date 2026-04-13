@@ -22,7 +22,7 @@ fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TB_DIR="$SCRIPT_DIR/../tb"
-NOC_ROOT="$SCRIPT_DIR/../../RaveNoC"
+NOC_ROOT="$SCRIPT_DIR/../rtl/ravenoc"
 NOC_SRC="$NOC_ROOT/src"
 AXI_PKG="$NOC_ROOT/bus_arch_sv_pkg"
 

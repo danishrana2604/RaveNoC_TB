@@ -31,7 +31,7 @@ fi
 # -- Paths ------------------------------------------------------------------
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TB_DIR="$SCRIPT_DIR/../tb"
-NOC_ROOT="$SCRIPT_DIR/../../RaveNoC"   # adjust if your folder is named differently
+NOC_ROOT="$SCRIPT_DIR/../rtl/ravenoc"   # adjust if your folder is named differently
 NOC_SRC="$NOC_ROOT/src"
 AXI_PKG="$NOC_ROOT/bus_arch_sv_pkg"
 
