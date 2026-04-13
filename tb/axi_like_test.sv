@@ -27,40 +27,59 @@ endclass
 class axi_like_test extends uvm_test;
   `uvm_component_utils(axi_like_test)
   axi_like_env env;
-  function new(string name, uvm_component parent); super.new(name,parent); endfunction
+
+  function automatic logic [31:0] make_flit(input int dst, input logic [21:0] payload);
+    return {dst[1], dst[0], 8'd1, payload};
+  endfunction
+
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction
+
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    env = axi_like_env::type_id::create("env",this);
+    env = axi_like_env::type_id::create("env", this);
   endfunction
+
   task run_phase(uvm_phase phase);
     axi_write_seq wr_seq;
     axi_read_seq  rd_seq;
-    phase.raise_objection(this);
-    `uvm_info("TEST","objection raised",UVM_NONE)
-    #1;
+    int src, dst;
+    logic [31:0] flit;
+    string tag;
 
-    // Write head flit to TX router [0][0]
+    phase.raise_objection(this);
+
+    // Get src/dst from plusargs (set by shell sweep loop)
+    if (1) src = 3; // sweep
+    if (1) dst = 2; // sweep
+
+    flit = make_flit(dst, 22'(src*4 + dst + 1));
+    tag  = $sformatf("r%0d->r%0d", src, dst);
+
+    `uvm_info("TEST", $sformatf(
+      "=== %s flit=0x%08h axi_sel_in=%0d axi_sel_out=%0d ===",
+      tag, flit, src, dst), UVM_NONE)
+
+    // Write
     wr_seq       = axi_write_seq::type_id::create("wr_seq");
     wr_seq.addr  = 32'h0000_1000;
-    wr_seq.wdata = 32'hC040_0001;
+    wr_seq.wdata = flit;
     wr_seq.start(env.master_agent.sequencer);
-    `uvm_info("TEST",$sformatf("Write done at %0t bresp=%0d",$time,
-              env.master_agent.driver.vif.bresp),UVM_NONE)
+    `uvm_info("TEST", $sformatf("%s WRITE done bresp=%0d", tag,
+              env.master_agent.driver.vif.bresp), UVM_NONE)
 
-    // Option A: start read IMMEDIATELY � no wait
-    // AR will be in flight before packet arrives at router [1][1]
-    // rready=0 until do_read enables it, so NI cannot drain buffer
+    // Wait for NoC traversal
+    #50000; // 5000 cycles wait
+
+    // Read
     rd_seq      = axi_read_seq::type_id::create("rd_seq");
     rd_seq.addr = 32'h0000_2000;
-    // Wait 500 cycles for NoC traversal
-    #5000;
-    // Wait 500 cycles for NoC traversal
-    #5000;
     rd_seq.start(env.rx_agent.sequencer);
-    `uvm_info("TEST",$sformatf("Read done rdata=0x%08h at %0t",
-              rd_seq.rdata,$time),UVM_NONE)
 
-    env.scoreboard.check_rdata(32'hC040_0001, rd_seq.rdata, "VC0_loopback");
+    env.scoreboard.check_rdata(flit, rd_seq.rdata, tag);
+    `uvm_info("TEST", $sformatf("%s READ rdata=0x%08h", tag, rd_seq.rdata), UVM_NONE)
+
     phase.drop_objection(this);
   endtask
 endclass

@@ -6,6 +6,8 @@ module tb_top;
   import tb_pkg::*;
 
   logic clk = 0;
+  logic [1:0] axi_sel_in  = 2'd3;
+  logic [1:0] axi_sel_out = 2'd2;
   logic rst_n = 0;
   initial forever #5 clk = ~clk;
   initial begin
@@ -95,8 +97,8 @@ module tb_top;
     .clk_axi(clk), .clk_noc(clk),
     .arst_axi(~rst_n), .arst_noc(~rst_n),
     .bypass_cdc(1'b1),
-    .act_in(1'b1),  .axi_sel_in('0),
-    .act_out(1'b1), .axi_sel_out(2'd3),
+    .act_in(1'b1),  .axi_sel_in(axi_sel_in),
+    .act_out(1'b1), .axi_sel_out(axi_sel_out),
     .noc_in_awid(tx_if.awid),       .noc_in_awaddr(tx_if.awaddr),
     .noc_in_awlen(tx_if.awlen),     .noc_in_awsize(tx_if.awsize),
     .noc_in_awburst(tx_if.awburst), .noc_in_awlock(tx_if.awlock),
@@ -138,7 +140,7 @@ module tb_top;
     .noc_out_arburst(rx_if.arburst),.noc_out_arlock(rx_if.arlock),
     .noc_out_arcache(rx_if.arcache),.noc_out_arprot(rx_if.arprot),
     .noc_out_arqos(rx_if.arqos),    .noc_out_arregion(rx_if.arregion),
-    .noc_out_aruser(rx_if.aruser),  .noc_out_arvalid(rx_if.arvalid && rx_ar_gate),
+    .noc_out_aruser(rx_if.aruser),  .noc_out_arvalid(rx_if.arvalid),
     .noc_out_arready(rx_arready_w), .noc_out_rready(rx_rready_ctrl2),
     .noc_out_rid(rx_rid_w),         .noc_out_rdata(rx_rdata_w),
     .noc_out_rresp(rx_rresp_w),     .noc_out_rlast(rx_rlast_w),
@@ -149,8 +151,6 @@ module tb_top;
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top.env.master_agent.*","tx_vif",tx_if);
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top.env.rx_agent.*","tx_vif",rx_if);
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top","rx_vif",rx_if);
-    $dumpfile("sim_uvm.fst");
-    $dumpvars(0, tb_top);
     $dumpfile("sim_uvm.fst");
     $dumpvars(0, tb_top);
     run_test();

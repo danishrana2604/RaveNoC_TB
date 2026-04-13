@@ -95,3 +95,9 @@ interface axi_like_if (input logic clk, input logic rst_n);
   );
 
 endinterface
+
+// Selector interface for sweep test
+interface noc_sel_if;
+  logic [1:0] axi_sel_in;
+  logic [1:0] axi_sel_out;
+endinterface
