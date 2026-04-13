@@ -1,0 +1,33 @@
+[timestart] 0
+[size] 1200 800
+[pos] 0 0
+*-16.199999 9810000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_top.
+[treeopen] tb_top.tx_if.
+[treeopen] tb_top.rx_if.
+@28
+tb_top.clk
+tb_top.rst_n
+@8
+-Write Channel (TX)
+@28
+tb_top.tx_if.awvalid
+tb_top.tx_if.awready
+tb_top.tx_if.wvalid
+tb_top.tx_if.wready
+tb_top.tx_if.wlast
+@22
+tb_top.tx_if.wdata[31:0]
+@28
+tb_top.tx_if.bvalid
+@22
+tb_top.tx_if.bresp[1:0]
+@8
+-Read Channel (RX)
+@28
+tb_top.rx_if.arvalid
+tb_top.rx_if.arready
+tb_top.rx_if.rvalid
+@22
+tb_top.rx_if.rdata[31:0]
+[pattern_filter_table]
