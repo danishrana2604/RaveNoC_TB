@@ -123,7 +123,7 @@ echo "Running: $OPT_TESTNAME"
 echo "Running axi_like_test with Antmicro UVM"
 echo "=================================="
 
-"$SCRIPT_DIR/obj_dir_uvm/Vtb_top" +UVM_TESTNAME="$OPT_TESTNAME"
+"$SCRIPT_DIR/obj_dir_uvm/Vtb_top" +UVM_TESTNAME="$OPT_TESTNAME" "$@"
 
 RC=$?
 if [ $RC -ne 0 ]; then
