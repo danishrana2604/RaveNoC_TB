@@ -149,6 +149,10 @@ module tb_top;
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top.env.master_agent.*","tx_vif",tx_if);
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top.env.rx_agent.*","tx_vif",rx_if);
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top","rx_vif",rx_if);
+    $dumpfile("sim_uvm.fst");
+    $dumpvars(0, tb_top);
+    $dumpfile("sim_uvm.fst");
+    $dumpvars(0, tb_top);
     run_test();
   end
 endmodule
