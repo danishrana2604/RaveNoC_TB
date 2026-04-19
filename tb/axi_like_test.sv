@@ -41,36 +41,29 @@ class axi_like_test extends uvm_test;
     env = axi_like_env::type_id::create("env", this);
   endfunction
 
-  task run_phase(uvm_phase phase);
+  // Run one write+read transaction
+  task run_txn(input int src, input int dst, input logic [21:0] payload);
     axi_write_seq wr_seq;
     axi_read_seq  rd_seq;
-    int src, dst;
-    logic [31:0] flit;
+    logic [31:0]  flit;
     string tag;
 
-    phase.raise_objection(this);
-
-    // Get src/dst from plusargs (set by shell sweep loop)
-    if (1) src = 3; // sweep
-    if (1) dst = 2; // sweep
-
-    flit = make_flit(dst, 22'(src*4 + dst + 1));
+    flit = make_flit(dst, payload);
     tag  = $sformatf("r%0d->r%0d", src, dst);
 
     `uvm_info("TEST", $sformatf(
-      "=== %s flit=0x%08h axi_sel_in=%0d axi_sel_out=%0d ===",
-      tag, flit, src, dst), UVM_NONE)
+      "=== TXN %s flit=0x%08h ===", tag, flit), UVM_NONE)
 
     // Write
     wr_seq       = axi_write_seq::type_id::create("wr_seq");
     wr_seq.addr  = 32'h0000_1000;
     wr_seq.wdata = flit;
     wr_seq.start(env.master_agent.sequencer);
-    `uvm_info("TEST", $sformatf("%s WRITE done bresp=%0d", tag,
-              env.master_agent.driver.vif.bresp), UVM_NONE)
+    `uvm_info("TEST", $sformatf("%s WRITE done bresp=%0d",
+              tag, env.master_agent.driver.vif.bresp), UVM_NONE)
 
     // Wait for NoC traversal
-    #50000; // 5000 cycles wait
+    #50000;
 
     // Read
     rd_seq      = axi_read_seq::type_id::create("rd_seq");
@@ -78,7 +71,28 @@ class axi_like_test extends uvm_test;
     rd_seq.start(env.rx_agent.sequencer);
 
     env.scoreboard.check_rdata(flit, rd_seq.rdata, tag);
-    `uvm_info("TEST", $sformatf("%s READ rdata=0x%08h", tag, rd_seq.rdata), UVM_NONE)
+    `uvm_info("TEST", $sformatf("%s READ rdata=0x%08h",
+              tag, rd_seq.rdata), UVM_NONE)
+
+    // Gap between transactions
+    #10000;
+  endtask
+
+  task run_phase(uvm_phase phase);
+    int src, dst;
+    phase.raise_objection(this);
+
+    // Get src/dst from sweep script
+    if (1) src = 0; // sweep
+    if (1) dst = 3; // sweep
+
+    // Run 3 transactions with same routing but different payloads
+    // This shows multiple transactions in one waveform
+    `uvm_info("TEST","=== MULTI-TRANSACTION TEST START ===", UVM_NONE)
+    run_txn(src, dst, 22'd1);   // transaction 1
+    run_txn(src, dst, 22'd2);   // transaction 2
+    run_txn(src, dst, 22'd3);   // transaction 3
+    `uvm_info("TEST","=== MULTI-TRANSACTION TEST DONE ===", UVM_NONE)
 
     phase.drop_objection(this);
   endtask
