@@ -60,9 +60,8 @@ verilator \
   -sv -O1 -j "$(nproc)" \
   --binary --build --cc \
   --trace-fst \
-  --trace-depth 5 \
   --trace-structs \
-  --trace-underscore \
+  --trace-depth 3 \
   \
   --timescale 1ns/1ps \
   --top-module tb_top \
