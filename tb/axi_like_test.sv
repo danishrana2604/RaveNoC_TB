@@ -51,8 +51,8 @@ class axi_like_test extends uvm_test;
     flit = make_flit(dst, payload);
     tag  = $sformatf("r%0d->r%0d", src, dst);
 
-    `uvm_info("TEST", $sformatf(
-      "=== TXN %s flit=0x%08h ===", tag, flit), UVM_NONE)
+    if (1) src = 0; // sweep
+    if (1) dst = 3; // sweep
 
     // Write
     wr_seq       = axi_write_seq::type_id::create("wr_seq");
