@@ -42,6 +42,7 @@ class axi_like_master_bfm extends uvm_driver #(axi_like_seq_item);
     // Wait rising edge then drive with BLOCKING assignments
     @(posedge vif.clk);
     vif.awvalid = 1;
+    `uvm_info("BFM",$sformatf("t=%0t awvalid HIGH addr=0x%08h wdata=0x%08h",$time,req.addr,req.data[0]),UVM_NONE)
     vif.awaddr  = req.addr;
     vif.awid    = req.id;
     vif.awlen   = req.len;
@@ -49,6 +50,7 @@ class axi_like_master_bfm extends uvm_driver #(axi_like_seq_item);
     vif.awburst = req.burst;
     vif.wvalid  = 1;
     vif.wdata   = req.data[0];
+    $display("[BFM] t=%0t wvalid driven HIGH wdata=0x%08h wlast=%0b", $time, vif.wdata, vif.wlast);
     vif.wstrb   = req.strb;
     vif.wlast   = 1;
     `uvm_info("WRITE_DBG",$sformatf(
@@ -56,17 +58,22 @@ class axi_like_master_bfm extends uvm_driver #(axi_like_seq_item);
       $time, vif.awaddr, vif.awsize, vif.awburst, vif.wdata), UVM_NONE)
 
     // Wait AW handshake
+    @(posedge vif.clk); // hold awvalid HIGH before handshake for waveform
+    @(posedge vif.clk);
+    @(posedge vif.clk);
     @(posedge vif.clk iff vif.awready);
     `uvm_info("WRITE_DBG",$sformatf(
       "t=%0t AW accepted: awsize=%0d awburst=%0d",
       $time, vif.awsize, vif.awburst), UVM_NONE)
     vif.awvalid = 0;
+    $display("[BFM] t=%0t awvalid driven LOW (AW handshake done)", $time);
 
     // Wait W handshake � hold wvalid ONE extra cycle after wready
     @(posedge vif.clk iff vif.wready);
     `uvm_info("WRITE_DBG",$sformatf("t=%0t W accepted, holding +1 cycle",$time),UVM_NONE)
     @(posedge vif.clk);
     vif.wvalid = 0;
+    $display("[BFM] t=%0t wvalid driven LOW (+1 cycle hold done)", $time);
     vif.wlast  = 0;
 
     // Wait B response
@@ -81,6 +88,7 @@ class axi_like_master_bfm extends uvm_driver #(axi_like_seq_item);
     vif.rready = 1;
     @(posedge vif.clk);
     vif.arvalid = 1;
+    `uvm_info("BFM",$sformatf("t=%0t arvalid HIGH addr=0x%08h",$time,req.addr),UVM_NONE)
     vif.araddr  = req.addr;
     vif.arid    = req.id;
     vif.arlen   = req.len;
@@ -88,8 +96,15 @@ class axi_like_master_bfm extends uvm_driver #(axi_like_seq_item);
     vif.arburst = req.burst;
     `uvm_info("READ_DBG",$sformatf("t=%0t driving AR addr=0x%08h",$time,req.addr),UVM_NONE)
 
+    @(posedge vif.clk); // hold arvalid HIGH before handshake for waveform
+    @(posedge vif.clk);
+    @(posedge vif.clk);
     @(posedge vif.clk iff vif.arready);
+    @(posedge vif.clk); // hold arvalid extra cycles for waveform visibility
+    @(posedge vif.clk);
+    @(posedge vif.clk);
     vif.arvalid = 0;
+    $display("[BFM] t=%0t arvalid driven LOW (AR handshake done)", $time);
     `uvm_info("READ_DBG",$sformatf("t=%0t AR accepted",$time),UVM_NONE)
 
     req.rdata = new[req.len + 1];

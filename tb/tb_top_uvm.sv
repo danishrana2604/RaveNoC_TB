@@ -6,8 +6,8 @@ module tb_top;
   import tb_pkg::*;
 
   logic clk = 0;
-  logic [1:0] axi_sel_in  = 2'd3;
-  logic [1:0] axi_sel_out = 2'd2;
+  logic [1:0] axi_sel_in  = 2'd0;
+  logic [1:0] axi_sel_out = 2'd3;
   logic rst_n = 0;
   initial forever #5 clk = ~clk;
   initial begin
@@ -153,6 +153,8 @@ module tb_top;
     uvm_config_db#(virtual axi_like_if)::set(null,"uvm_test_top","rx_vif",rx_if);
     $dumpfile("sim_uvm.fst");
     $dumpvars(0, tb_top);
+    $dumpvars(0, tb_top.tx_if);
+    $dumpvars(0, tb_top.rx_if);
     run_test();
   end
 endmodule

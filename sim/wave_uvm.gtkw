@@ -1,33 +1,32 @@
 [timestart] 0
-[size] 1200 800
+[size] 1400 800
 [pos] 0 0
-*-16.199999 9810000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-16.199999 10005000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] tb_top.
-[treeopen] tb_top.tx_if.
-[treeopen] tb_top.rx_if.
+[treeopen] tb_top.dut.
 @28
 tb_top.clk
 tb_top.rst_n
 @8
--Write Channel (TX)
+-Write Channel (TX) - BFM driven via axi_mosi[0]
 @28
-tb_top.tx_if.awvalid
-tb_top.tx_if.awready
-tb_top.tx_if.wvalid
-tb_top.tx_if.wready
-tb_top.tx_if.wlast
+tb_top.dut.axi_mosi[0].awvalid
+tb_top.dut.axi_mosi[0].awready
+tb_top.dut.axi_mosi[0].wvalid
+tb_top.dut.axi_mosi[0].wready
+tb_top.dut.axi_mosi[0].wlast
 @22
-tb_top.tx_if.wdata[31:0]
+tb_top.dut.axi_mosi[0].wdata[31:0]
 @28
-tb_top.tx_if.bvalid
+tb_top.dut.axi_mosi[0].bvalid
 @22
-tb_top.tx_if.bresp[1:0]
+tb_top.dut.axi_mosi[0].bresp[1:0]
 @8
--Read Channel (RX)
+-Read Channel (RX) - BFM driven via axi_mosi[3]
 @28
-tb_top.rx_if.arvalid
-tb_top.rx_if.arready
-tb_top.rx_if.rvalid
+tb_top.dut.axi_mosi[3].arvalid
+tb_top.dut.axi_mosi[3].arready
+tb_top.dut.axi_mosi[3].rvalid
 @22
-tb_top.rx_if.rdata[31:0]
+tb_top.dut.axi_mosi[3].rdata[31:0]
 [pattern_filter_table]
