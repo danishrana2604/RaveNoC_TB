@@ -8,7 +8,7 @@
 tb_top.clk
 tb_top.rst_n
 @8
--Write Channel (TX) - BFM driven via axi_mosi[0]
+-Write TX
 @28
 tb_top.dut.axi_mosi[0].awvalid
 tb_top.dut.axi_mosi[0].awready
@@ -22,7 +22,7 @@ tb_top.dut.axi_mosi[0].bvalid
 @22
 tb_top.dut.axi_mosi[0].bresp[1:0]
 @8
--Read Channel (RX) - BFM driven via axi_mosi[3]
+-Read RX
 @28
 tb_top.dut.axi_mosi[3].arvalid
 tb_top.dut.axi_mosi[3].arready
