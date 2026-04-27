@@ -28,7 +28,25 @@ class axi_like_test extends uvm_test;
   `uvm_component_utils(axi_like_test)
   axi_like_env env;
 
-  function automatic logic [31:0] make_flit(input int dst, input logic [21:0] payload);
+  // VC address map
+  // VC0: wr=0x1000 rd=0x2000
+  // VC1: wr=0x1008 rd=0x2008
+  // VC2: wr=0x1010 rd=0x2010
+  localparam logic [31:0] WR_ADDR [3] = '{
+    32'h0000_1000,   // VC0
+    32'h0000_1008,   // VC1
+    32'h0000_1010    // VC2
+  };
+  localparam logic [31:0] RD_ADDR [3] = '{
+    32'h0000_2000,   // VC0
+    32'h0000_2008,   // VC1
+    32'h0000_2010    // VC2
+  };
+
+  function automatic logic [31:0] make_flit(
+    input int dst,
+    input logic [21:0] payload
+  );
     return {dst[1], dst[0], 8'd1, payload};
   endfunction
 
@@ -41,22 +59,28 @@ class axi_like_test extends uvm_test;
     env = axi_like_env::type_id::create("env", this);
   endfunction
 
-  // Run one write+read transaction
-  task run_txn(input int src, input int dst, input logic [21:0] payload);
+  // Run one write+read on a specific VC
+  task run_vc_txn(
+    input int src,
+    input int dst,
+    input int vc,
+    input logic [21:0] payload
+  );
     axi_write_seq wr_seq;
     axi_read_seq  rd_seq;
     logic [31:0]  flit;
-    string tag;
+    string        tag;
 
     flit = make_flit(dst, payload);
-    tag  = $sformatf("r%0d->r%0d", src, dst);
+    tag  = $sformatf("r%0d->r%0d VC%0d", src, dst, vc);
 
-    if (1) src = 0; // sweep
-    if (1) dst = 3; // sweep
+    `uvm_info("TEST", $sformatf(
+      "=== %s wr_addr=0x%08h rd_addr=0x%08h flit=0x%08h ===",
+      tag, WR_ADDR[vc], RD_ADDR[vc], flit), UVM_NONE)
 
-    // Write
+    // Write to VC-specific TX buffer
     wr_seq       = axi_write_seq::type_id::create("wr_seq");
-    wr_seq.addr  = 32'h0000_1000;
+    wr_seq.addr  = WR_ADDR[vc];
     wr_seq.wdata = flit;
     wr_seq.start(env.master_agent.sequencer);
     `uvm_info("TEST", $sformatf("%s WRITE done bresp=%0d",
@@ -65,35 +89,33 @@ class axi_like_test extends uvm_test;
     // Wait for NoC traversal
     #50000;
 
-    // Read
+    // Read from VC-specific RX buffer
     rd_seq      = axi_read_seq::type_id::create("rd_seq");
-    rd_seq.addr = 32'h0000_2000;
+    rd_seq.addr = RD_ADDR[vc];
     rd_seq.start(env.rx_agent.sequencer);
 
     env.scoreboard.check_rdata(flit, rd_seq.rdata, tag);
     `uvm_info("TEST", $sformatf("%s READ rdata=0x%08h",
               tag, rd_seq.rdata), UVM_NONE)
 
-    // Gap between transactions
-    #10000;
+    #10000; // gap between transactions
   endtask
 
   task run_phase(uvm_phase phase);
     int src, dst;
     phase.raise_objection(this);
 
-    // Get src/dst from sweep script
     if (1) src = 0; // sweep
     if (1) dst = 3; // sweep
 
-    // Run 3 transactions with same routing but different payloads
-    // This shows multiple transactions in one waveform
-    `uvm_info("TEST","=== MULTI-TRANSACTION TEST START ===", UVM_NONE)
-    run_txn(src, dst, 22'd1);   // transaction 1
-    run_txn(src, dst, 22'd2);   // transaction 2
-    run_txn(src, dst, 22'd3);   // transaction 3
-    `uvm_info("TEST","=== MULTI-TRANSACTION TEST DONE ===", UVM_NONE)
+    `uvm_info("TEST","=== MULTI-ADDRESS VC TEST START ===", UVM_NONE)
 
+    // Test all 3 VCs sequentially
+    run_vc_txn(src, dst, 0, 22'd1);  // VC0: addr 0x1000/0x2000
+    run_vc_txn(src, dst, 1, 22'd2);  // VC1: addr 0x1008/0x2008
+    run_vc_txn(src, dst, 2, 22'd3);  // VC2: addr 0x1010/0x2010
+
+    `uvm_info("TEST","=== MULTI-ADDRESS VC TEST DONE ===", UVM_NONE)
     phase.drop_objection(this);
   endtask
 endclass
