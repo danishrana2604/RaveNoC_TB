@@ -8,7 +8,7 @@ package tb_pkg;
 
   `include "axi_like_seq_item.sv"
   `include "axi_like_master_bfm.sv"
-  `include "axi_like_slave_bfm.sv"
+  //`include "axi_like_slave_bfm.sv"
   `include "axi_like_agent.sv"
   `include "axi_scoreboard.sv"
   `include "axi_like_env.sv"
