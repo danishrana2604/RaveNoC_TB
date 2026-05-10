@@ -35,7 +35,7 @@ module tb_top;
     rx_if.wlast = 0; rx_if.bready = 1;
   end
 
-  // Intermediate wires for DUT outputs � breaks virtual interface ico loop
+  // Intermediate wires for DUT outputs breaks virtual interface ico loop
   logic        tx_awready_w, tx_wready_w, tx_bvalid_w, tx_arready_w;
   logic        tx_bid_w, tx_rvalid_w, tx_rlast_w, tx_rid_w;
   logic [1:0]  tx_bresp_w, tx_buser_w, tx_rresp_w, tx_ruser_w;
